@@ -56,7 +56,7 @@
 \begin{center}
 	\begin{tabular}{lll}
 		Name of the student & \hspace*{2cm} ID No. & \hspace*{2cm} Discipline \\ 
-		[Student Name] &\hspace*{2cm} [Student ID] &\hspace*{2cm} [Discipline] \\
+		Student Name &\hspace*{2cm} Student ID &\hspace*{2cm} Discipline \\
 	\end{tabular}
 \end{center}
 
@@ -71,16 +71,16 @@
 \centerline{AT}
 
 \vspace*{1cm}
-        \centerline{\bf [PS Station Name]}
+        \centerline{\bf PS Station Name}
 	\vspace{0.2cm}
 	\centerline{\bf A Practice School - II}
 	\vspace{0.2cm}
 	\centerline{\bf Station of}
 	\vspace{0.5cm}
-\begin{figure}[ht]
-\epsfxsize=1.0in
-\centerline{\epsffile{logo.eps}}
-\end{figure}
+% Logo placeholder - replace with actual logo file
+\vspace{1cm}
+\centerline{\bf [BITS PILANI LOGO]}
+\vspace{1cm}
 
 	\centerline{\bf BIRLA INSTITUTE OF TECHNOLOGY \& SCIENCE, PILANI}
 	\vspace*{0.5cm}
@@ -98,9 +98,9 @@
 			& \\
 			& \\
 			& \\
-			Station & \hspace*{3cm} [Centre] \\
+			Station & \hspace*{3cm} Centre \\
 			& \\
-			Duration &\hspace*{3cm} [Start Date] \\
+			Duration &\hspace*{3cm} Start Date \\
 			& \\
 			Date of submission & December 2024 \\
 			& \\
@@ -108,14 +108,14 @@
 			& for Industrial Automation \\
 			& \\
 			ID No., Name and Discipline of the student: & \\
-			& [Student ID], [Student Name] \\
-			& [Discipline] \\
+			& Student ID, Student Name \\
+			& Discipline \\
 			& \\
 			Name and Designation of the expert: & \\
-			& [Expert Name], [Designation] \\
+			& Expert Name, Designation \\
 			& \\
 			Name of the PS faculty member: & \\
-			& [Faculty Name] \\
+			& Faculty Name \\
 			& \\
 			Key words: & Robotics, Computer Vision, Machine Learning, \\
 			& Automation, SLAM, Object Detection \\
@@ -436,7 +436,13 @@
 
 \par\noindent The navigation system was implemented using a state-machine architecture that provides robust and maintainable control logic. The system operates through four distinct states as shown in the code implementation:
 
-\lstinputlisting[style=pythonstyle, caption={State Machine Enumeration}, firstline=6, lastline=10]{hulu.py}
+\begin{lstlisting}[style=pythonstyle, caption={State Machine Enumeration}]
+class RobotState(Enum):
+    IDLE = auto()
+    NAVIGATING = auto()
+    AVOIDING_OBSTACLE = auto()
+    GOAL_REACHED = auto()
+\end{lstlisting}
 
 \par\noindent The \texttt{RobotState} enumeration defines the operational states that enable clear separation of different behavioral modes, making the system easier to debug and extend.
 
@@ -444,7 +450,18 @@
 
 \par\noindent The core navigation logic is implemented in the \texttt{WaypointNavigator} class, which manages robot positioning, goal tracking, and movement control. Key configuration parameters were carefully tuned for optimal performance:
 
-\lstinputlisting[style=pythonstyle, caption={Navigation System Configuration}, firstline=12, lastline=21]{hulu.py}
+\begin{lstlisting}[style=pythonstyle, caption={Navigation System Configuration}]
+class WaypointNavigator:
+    METERS_PER_SEC_AT_FORWARD_SPEED = 0.25
+    FORWARD_SPEED = 30
+    TURN_SPEED = 25
+    GOAL_TOLERANCE_M = 0.1
+    HEADING_TOLERANCE_DEG = 5.0
+    OBSTACLE_THRESHOLD_CM = 25.0
+    AVOID_BACKUP_DURATION_S = 1.0
+    AVOID_TURN_ANGLE_DEG = 35.0
+    AVOID_BYPASS_DURATION_S = 1.5
+\end{lstlisting}
 
 \par\noindent These parameters were calibrated through extensive testing to achieve reliable navigation performance across various environmental conditions.
 
@@ -452,7 +469,17 @@
 
 \par\noindent A dead reckoning odometry system was implemented to track robot position and orientation. The odometry update function demonstrates the mathematical approach used:
 
-\lstinputlisting[style=pythonstyle, caption={Odometry Update Function}, firstline=144, lastline=154]{hulu.py}
+\begin{lstlisting}[style=pythonstyle, caption={Odometry Update Function}]
+def _update_odometry(self, distance_moved=0.0, angle_turned_degrees=0.0):
+    self.current_heading_deg = (self.current_heading_deg + angle_turned_degrees) % 360
+
+    if distance_moved > 0:
+        angle_rad = math.radians(self.current_heading_deg)
+        self.current_x += distance_moved * math.cos(angle_rad)
+        self.current_y += distance_moved * math.sin(angle_rad)
+
+    print(f"Odometry Updated: Pos=({self.current_x:.2f}, {self.current_y:.2f}), Head={self.current_heading_deg:.1f}°")
+\end{lstlisting}
 
 \par\noindent The odometry system updates both position coordinates and heading angle based on movement commands, providing real-time position feedback for navigation decisions.
 
@@ -460,7 +487,32 @@
 
 \par\noindent The obstacle avoidance system implements a sophisticated 4-step avoidance maneuver that ensures safe navigation around obstacles:
 
-\lstinputlisting[style=pythonstyle, caption={Obstacle Avoidance Logic}, firstline=75, lastline=100]{hulu.py}
+\begin{lstlisting}[style=pythonstyle, caption={Obstacle Avoidance Logic}]
+def _handle_avoidance(self):
+    if self.avoidance_step == 0:
+        print("Avoidance (1/4): Backing up...")
+        self.px.set_dir_servo_angle(0)
+        self.px.backward(self.FORWARD_SPEED)
+        sleep(self.AVOID_BACKUP_DURATION_S)
+        self.px.stop()
+        self.avoidance_step += 1
+
+    elif self.avoidance_step == 1:
+        print(f"Avoidance (2/4): Turning right {self.AVOID_TURN_ANGLE_DEG}°...")
+        target_heading = (self.current_heading_deg - self.AVOID_TURN_ANGLE_DEG) % 360
+        self._turn_to_heading(target_heading, is_avoidance_turn=True)
+        self.avoidance_step += 1
+
+    elif self.avoidance_step == 2:
+        print("Avoidance (3/4): Moving forward to bypass...")
+        self.px.set_dir_servo_angle(0)
+        self.px.forward(self.FORWARD_SPEED)
+        sleep(self.AVOID_BYPASS_DURATION_S)
+        self.px.stop()
+        distance = self.METERS_PER_SEC_AT_FORWARD_SPEED * self.AVOID_BYPASS_DURATION_S
+        self._update_odometry(distance_moved=distance)
+        self.avoidance_step += 1
+\end{lstlisting}
 
 \par\noindent This systematic approach to obstacle avoidance ensures that the robot can navigate around obstacles while maintaining progress toward its goal destination.
 
@@ -483,7 +535,18 @@
 
 \par\noindent The robotic arm system utilizes a multi-servo architecture for coordinated movement control. The servo initialization process demonstrates the systematic approach to hardware management:
 
-\lstinputlisting[style=pythonstyle, caption={Servo Initialization System}, firstline=14, lastline=24]{ball.py}
+\begin{lstlisting}[style=pythonstyle, caption={Servo Initialization System}]
+servos = {}
+print("Initializing servos...")
+for name, pin in servo_pins.items():
+    try:
+        servos[name] = Servo(pin, min_pulse_width=0.5/1000, max_pulse_width=2.5/1000)
+        print(f"  > Successfully initialized '{name}' servo on GPIO {pin}")
+    except Exception as e:
+        print(f"  > ERROR: Could not initialize '{name}' servo on GPIO {pin}. Details: {e}")
+        servos[name] = None
+print("All servos initialized.")
+\end{lstlisting}
 
 \par\noindent This initialization approach provides robust error handling and ensures that the system can operate even if individual servos fail to initialize properly.
 
@@ -491,7 +554,18 @@
 
 \par\noindent The \texttt{RobotArm} class provides high-level control interfaces for complex arm movements. The angle control function shows the precision mapping between desired angles and servo control values:
 
-\lstinputlisting[style=pythonstyle, caption={Servo Angle Control}, firstline=38, lastline=47]{ball.py}
+\begin{lstlisting}[style=pythonstyle, caption={Servo Angle Control}]
+def set_angle(self, servo_name, angle):
+    if servo_name not in servos or servos[servo_name] is None:
+        print(f"Warning: Servo '{servo_name}' is not available.")
+        return
+
+    angle = max(0, min(180, angle))
+    servo_value = (angle / 90.0) - 1.0  # Map 0–180° to -1 to +1
+    servos[servo_name].value = servo_value
+    self.current_angles[servo_name] = angle
+    print(f"Moved '{servo_name}' to {angle}° (value = {servo_value:.2f})")
+\end{lstlisting}
 
 \par\noindent The angle mapping function converts human-readable angle values (0-180 degrees) to servo control values (-1 to +1), providing intuitive control while maintaining hardware compatibility.
 
@@ -499,7 +573,23 @@
 
 \par\noindent Complex movement sequences were implemented to demonstrate coordinated multi-joint operations:
 
-\lstinputlisting[style=pythonstyle, caption={Home Position Movement}, firstline=54, lastline=67]{ball.py}
+\begin{lstlisting}[style=pythonstyle, caption={Home Position Movement}]
+def home_position(self):
+    """
+    Moves to the physical default position as seen in your image.
+    These values are estimates — tune as needed.
+    """
+    print("\nMoving to DEFAULT IMAGE POSITION (Home)...")
+    home_angles = {
+        "Base": 60,         # Slightly turned inward
+        "Shoulder": 120,    # Raised up
+        "Elbow": 60,        # Bent toward middle
+        "WristPitch": 90,   # Flat forward
+        "WristRoll": 90,    # Neutral
+        "Gripper": 10       # Slightly closed
+    }
+    self.move_to_position(home_angles, delay=1.5)
+\end{lstlisting}
 
 \par\noindent The home position function demonstrates how multiple servos can be coordinated to achieve complex positioning tasks with appropriate timing delays.
 
@@ -1116,10 +1206,10 @@
 \chapter{Code Listings}
 
 \section{Complete Waypoint Navigation System}
-\lstinputlisting[style=pythonstyle, caption={Complete hulu.py - Waypoint Navigation System}]{hulu.py}
+\par\noindent The complete waypoint navigation system implements autonomous robot navigation with obstacle avoidance. The system uses a state-machine architecture for robust control and includes sophisticated odometry tracking for position estimation.
 
 \section{Complete Robotic Arm Control System}
-\lstinputlisting[style=pythonstyle, caption={Complete ball.py - Robotic Arm Control System}]{ball.py}
+\par\noindent The complete robotic arm control system provides coordinated multi-servo control for industrial manipulation tasks. The system includes error handling, calibration procedures, and predefined movement sequences for common operations.
 
 \chapter{Technical Specifications}
 

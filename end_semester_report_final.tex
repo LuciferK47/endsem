@@ -1,0 +1,503 @@
+\documentclass[12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{geometry}
+
+\geometry{margin=1in}
+
+% Code listing style
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{green!60!black},
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+    numbersep=5pt,
+    breaklines=true,
+    captionpos=b,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\title{AUTONOMOUS ROBOTICS AND COMPUTER VISION FOR INDUSTRIAL AUTOMATION\\
+\large End Semester Report}
+
+\author{Student Name\\
+Student ID\\
+Discipline\\
+\\
+BITS Pilani\\
+Practice School - II}
+
+\date{December 2024}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Acknowledgments}
+
+I would like to express my sincere gratitude to all the individuals and teams who contributed to the success of this project. Special thanks to the T4 team for their collaboration on dataset processing and model training, the T2 team for their assistance with Raspberry Pi integration, and Anirudh for help with hardware installation and protective measures.
+
+I am also grateful to my project supervisors and mentors for their guidance throughout this journey, and to BITS Pilani for providing this valuable learning opportunity through the Practice School program.
+
+\newpage
+
+\section{Executive Summary}
+
+This report presents the comprehensive work undertaken during the post-midsem period of the Practice School project focused on autonomous robotics and computer vision for industrial automation. The project involved significant advancements in dataset preparation, hardware setup, software development, and exploration of new automation technologies.
+
+Key achievements include the collection and preprocessing of 82 video samples resulting in 800-1200 high-quality images, successful integration of camera systems with protective measures, development of CNN-based image classification systems, and implementation of robotic navigation algorithms. The work demonstrates practical applications of machine vision in industrial settings and explores emerging areas such as indoor farming automation.
+
+\newpage
+
+\section{Introduction}
+
+\subsection{Project Overview}
+The project focuses on developing autonomous robotics systems integrated with computer vision capabilities for industrial automation applications. This interdisciplinary approach combines hardware engineering, software development, and machine learning to create robust automation solutions.
+
+\subsection{Objectives}
+The primary objectives of this project include:
+\begin{itemize}
+\item Development of comprehensive datasets for machine learning applications
+\item Integration of camera systems with industrial hardware
+\item Implementation of computer vision algorithms for real-time processing
+\item Creation of autonomous navigation systems for mobile robots
+\item Exploration of robotic arm control for precision manipulation
+\item Investigation of emerging automation applications
+\end{itemize}
+
+\subsection{Scope and Applications}
+The scope encompasses multiple domains including industrial quality control, autonomous navigation, robotic manipulation, and emerging applications in agricultural automation. The work addresses real-world challenges in lighting control, hardware integration, and system reliability.
+
+\newpage
+
+\section{Post-Midsem Activities and Progress}
+
+\subsection{Dataset Preparation}
+
+\subsubsection{Video Data Collection}
+A comprehensive video dataset was collected consisting of 82 video samples, each ranging from 3 to 20 seconds in duration. The collection strategy focused on capturing diverse scenarios including:
+\begin{itemize}
+\item Multiple camera angles (top-view and side-view perspectives)
+\item Various lighting conditions to ensure robustness
+\item Different object orientations and positions
+\item Dynamic scenarios with conveyor belt movement
+\end{itemize}
+
+\subsubsection{Image Extraction and Preprocessing}
+From the collected video dataset, approximately 800-1200 high-quality images were extracted using automated frame extraction techniques. The preprocessing pipeline included:
+\begin{itemize}
+\item Automated cropping to focus on regions of interest
+\item Resizing to standardized dimensions for model training
+\item Format conversion for compatibility with machine learning frameworks
+\item Quality filtering to remove blurred or poorly lit samples
+\end{itemize}
+
+\subsubsection{Dataset Collaboration}
+The preprocessed dataset was shared with the T4 team for advanced processing and model training. This collaboration enabled:
+\begin{itemize}
+\item Specialized expertise in deep learning model development
+\item Access to computational resources for training
+\item Iterative feedback for dataset improvement
+\item Knowledge transfer between teams
+\end{itemize}
+
+\subsection{Hardware Setup and Integration}
+
+\subsubsection{Camera Installation}
+Successful installation of dual camera systems was completed:
+\begin{itemize}
+\item \textbf{Top-view camera}: Mounted for overhead perspective of conveyor operations
+\item \textbf{Side-view camera}: Positioned for profile analysis and dimensional measurements
+\item \textbf{Mounting hardware}: Custom brackets designed for stability and adjustability
+\item \textbf{Cable management}: Organized routing to prevent interference with moving parts
+\end{itemize}
+
+\subsubsection{Protective Measures}
+Comprehensive protective systems were implemented with assistance from Anirudh and the hardware team:
+\begin{itemize}
+\item Protective covers for lighting systems to prevent damage
+\item Camera enclosures to shield from industrial environment
+\item Lighting control enclosures to minimize ambient interference
+\item Safety barriers to protect personnel during operation
+\end{itemize}
+
+\subsubsection{Lighting Control Systems}
+Advanced lighting control was implemented to ensure consistent image quality:
+\begin{itemize}
+\item Enclosed lighting systems to reduce ambient light interference
+\item Programmable LED arrays for consistent illumination
+\item Diffusion systems to eliminate harsh shadows
+\item Automatic brightness adjustment based on ambient conditions
+\end{itemize}
+
+\subsubsection{Raspberry Pi Integration}
+Initial integration of Raspberry Pi systems was completed:
+\begin{itemize}
+\item GPIO interface setup for sensor and actuator control
+\item Communication protocols established with main control systems
+\item Real-time image processing capabilities configured
+\item Collaboration with T2 team for module interfacing expertise
+\end{itemize}
+
+\subsection{Software Development}
+
+\subsubsection{Image Classification System}
+A comprehensive CNN-based image classification system was developed:
+
+\begin{lstlisting}[style=pythonstyle, caption={CNN Architecture Implementation}]
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+class IndustrialCNN:
+    def __init__(self, input_shape, num_classes):
+        self.model = models.Sequential([
+            layers.Conv2D(32, (3, 3), activation='relu', 
+                         input_shape=input_shape),
+            layers.MaxPooling2D((2, 2)),
+            layers.Conv2D(64, (3, 3), activation='relu'),
+            layers.MaxPooling2D((2, 2)),
+            layers.Conv2D(64, (3, 3), activation='relu'),
+            layers.Flatten(),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(num_classes, activation='softmax')
+        ])
+        
+    def compile_model(self):
+        self.model.compile(
+            optimizer='adam',
+            loss='categorical_crossentropy',
+            metrics=['accuracy']
+        )
+\end{lstlisting}
+
+The system incorporates:
+\begin{itemize}
+\item Iterative development based on T4 team feedback
+\item Real-time inference capabilities
+\item Robust error handling and logging
+\item Performance optimization for industrial deployment
+\end{itemize}
+
+\subsubsection{YOLOv5 Integration}
+Comprehensive study and implementation of YOLOv5 for object detection:
+\begin{itemize}
+\item Literature review of relevant research papers
+\item Implementation of YOLOv5 architecture
+\item Custom dataset adaptation for industrial objects
+\item Performance benchmarking against existing solutions
+\end{itemize}
+
+\subsubsection{Camera Control Systems}
+Advanced camera control using the pypylon SDK:
+
+\begin{lstlisting}[style=pythonstyle, caption={Camera Control Implementation}]
+from pypylon import pylon
+
+class CameraController:
+    def __init__(self):
+        self.camera = pylon.InstantCamera(
+            pylon.TlFactory.GetInstance().CreateFirstDevice()
+        )
+        
+    def configure_camera(self, exposure_time, gain, brightness):
+        self.camera.Open()
+        self.camera.ExposureTime.SetValue(exposure_time)
+        self.camera.Gain.SetValue(gain)
+        self.camera.Gamma.SetValue(brightness)
+        
+    def capture_image(self):
+        self.camera.StartGrabbing(pylon.GrabStrategy_LatestImageOnly)
+        grabResult = self.camera.RetrieveResult(5000)
+        if grabResult.GrabSucceeded():
+            image = grabResult.Array
+            return image
+        return None
+\end{lstlisting}
+
+Features implemented:
+\begin{itemize}
+\item Real-time exposure control for varying lighting conditions
+\item Programmable zoom and focus adjustment
+\item Brightness and contrast optimization
+\item Integration with VSCode development environment
+\end{itemize}
+
+\subsubsection{Autonomous Navigation System}
+Development of sophisticated waypoint navigation with obstacle avoidance:
+
+\begin{lstlisting}[style=pythonstyle, caption={Navigation State Machine}]
+from enum import Enum, auto
+
+class RobotState(Enum):
+    IDLE = auto()
+    NAVIGATING = auto()
+    AVOIDING_OBSTACLE = auto()
+    GOAL_REACHED = auto()
+
+class WaypointNavigator:
+    def __init__(self):
+        self.state = RobotState.IDLE
+        self.current_x = 0.0
+        self.current_y = 0.0
+        self.current_heading_deg = 0.0
+        self.target_waypoints = []
+        
+    def navigate_to_waypoint(self, target_x, target_y):
+        distance = self.calculate_distance(target_x, target_y)
+        angle = self.calculate_bearing(target_x, target_y)
+        
+        if distance < self.GOAL_TOLERANCE_M:
+            self.state = RobotState.GOAL_REACHED
+            return True
+            
+        if self.detect_obstacle():
+            self.state = RobotState.AVOIDING_OBSTACLE
+            self.handle_obstacle_avoidance()
+        else:
+            self.state = RobotState.NAVIGATING
+            self.move_toward_target(angle, distance)
+            
+        return False
+\end{lstlisting}
+
+\subsubsection{SLAM Algorithm Implementation}
+Participation in SLAM (Simultaneous Localization and Mapping) algorithm development:
+\begin{itemize}
+\item Integration with Jackal robot platform
+\item ROS (Robot Operating System) exploration and implementation
+\item Linux-based development environment setup
+\item Real-time mapping and localization capabilities
+\end{itemize}
+
+\subsection{Robotic Arm Control System}
+
+\subsubsection{Servo Control Architecture}
+Implementation of comprehensive servo control for robotic manipulation:
+
+\begin{lstlisting}[style=pythonstyle, caption={Servo Control System}]
+from gpiozero import Servo
+import time
+
+class RoboticArmController:
+    def __init__(self):
+        self.servo_pins = {
+            "Base": 18, "Shoulder": 19, "Elbow": 20,
+            "WristPitch": 21, "WristRoll": 26, "Gripper": 16
+        }
+        self.servos = {}
+        self.current_angles = {}
+        self.initialize_servos()
+        
+    def initialize_servos(self):
+        for name, pin in self.servo_pins.items():
+            try:
+                self.servos[name] = Servo(
+                    pin, 
+                    min_pulse_width=0.5/1000, 
+                    max_pulse_width=2.5/1000
+                )
+                self.current_angles[name] = 90  # Default position
+            except Exception as e:
+                print(f"Failed to initialize {name}: {e}")
+                
+    def move_to_position(self, target_angles, delay=1.0):
+        for servo_name, angle in target_angles.items():
+            if servo_name in self.servos:
+                self.set_angle(servo_name, angle)
+                time.sleep(delay)
+\end{lstlisting}
+
+\subsection{New Prototyping Initiative}
+
+\subsubsection{Indoor Farming Automation}
+Initiated development of machine vision-based indoor farming automation:
+\begin{itemize}
+\item Conceptual design for automated plant monitoring systems
+\item Computer vision algorithms for plant health assessment
+\item Environmental control integration
+\item Scalability analysis for commercial applications
+\end{itemize}
+
+\newpage
+
+\section{Technical Challenges and Solutions}
+
+\subsection{Lighting and Image Quality Issues}
+\subsubsection{Challenge}
+Significant issues encountered with lighting reflections and image blur during conveyor movement, affecting the quality of captured data for machine learning applications.
+
+\subsubsection{Solution Approach}
+\begin{itemize}
+\item Implementation of controlled lighting environments with diffusion systems
+\item Calibration of camera settings for optimal exposure and shutter speed
+\item Development of image stabilization algorithms
+\item Creation of protective enclosures to minimize ambient light interference
+\end{itemize}
+
+\subsubsection{Results}
+Achieved substantial improvement in image quality with reduced reflections and motion blur, enabling more reliable dataset collection and processing.
+
+\subsection{Robotic Arm Optimization}
+\subsubsection{Challenge}
+The robotic arm system was operational but not performing at optimal levels, requiring refinement for robust industrial functionality.
+
+\subsubsection{Solution Approach}
+\begin{itemize}
+\item Comprehensive calibration of servo control parameters
+\item Implementation of error handling and recovery mechanisms
+\item Development of smooth trajectory planning algorithms
+\item Integration of feedback systems for position verification
+\end{itemize}
+
+\subsubsection{Current Status}
+Ongoing optimization with improved precision and reliability, though further refinement is required for full industrial deployment.
+
+\subsection{Navigation System Challenges}
+\subsubsection{Challenge}
+The Jackal robot successfully avoids obstacles but requires enhancement in navigation precision and goal-reaching capabilities.
+
+\subsubsection{Solution Approach}
+\begin{itemize}
+\item Implementation of advanced odometry tracking
+\item Development of sophisticated obstacle avoidance algorithms
+\item Integration of multiple sensor inputs for improved situational awareness
+\item Fine-tuning of control parameters for various terrain conditions
+\end{itemize}
+
+\newpage
+
+\section{Key Learnings and Skills Developed}
+
+\subsection{Technical Skills}
+\subsubsection{Hardware Integration}
+\begin{itemize}
+\item Hands-on experience with industrial cameras and mounting systems
+\item Understanding of lighting calibration and environmental control
+\item Expertise in Raspberry Pi GPIO programming and interfacing
+\item Knowledge of protective systems design for industrial environments
+\end{itemize}
+
+\subsubsection{Software Development}
+\begin{itemize}
+\item Proficiency in computer vision algorithms and implementation
+\item Experience with machine learning frameworks (TensorFlow, PyTorch)
+\item Understanding of real-time image processing techniques
+\item Expertise in robotic control systems and state machines
+\end{itemize}
+
+\subsubsection{System Integration}
+\begin{itemize}
+\item Understanding of hardware-software integration challenges
+\item Experience with multi-team collaboration and knowledge sharing
+\item Appreciation for real-world constraints in industrial automation
+\item Knowledge of system reliability and error handling requirements
+\end{itemize}
+
+\subsection{Project Management}
+\begin{itemize}
+\item Coordination with multiple teams (T2, T4) for specialized expertise
+\item Management of hardware installation with technical support staff
+\item Documentation and knowledge transfer practices
+\item Timeline management and milestone achievement
+\end{itemize}
+
+\subsection{Problem-Solving Approaches}
+\begin{itemize}
+\item Systematic debugging of hardware and software issues
+\item Iterative development and testing methodologies
+\item Root cause analysis for performance optimization
+\item Creative solutions for environmental and technical constraints
+\end{itemize}
+
+\newpage
+
+\section{Future Work and Recommendations}
+
+\subsection{Immediate Improvements}
+\begin{itemize}
+\item \textbf{Robotic Arm Optimization}: Complete the calibration and fine-tuning process for industrial-grade precision
+\item \textbf{Navigation Enhancement}: Implement advanced path planning algorithms for improved goal-reaching accuracy
+\item \textbf{Lighting System}: Deploy automated adaptive lighting controls for varying environmental conditions
+\item \textbf{Integration Testing}: Conduct comprehensive system-level testing with all components integrated
+\end{itemize}
+
+\subsection{Medium-term Developments}
+\begin{itemize}
+\item \textbf{Machine Learning Enhancement}: Deploy advanced deep learning models for improved object recognition and classification
+\item \textbf{Predictive Maintenance}: Implement condition monitoring systems for proactive maintenance scheduling
+\item \textbf{Human-Robot Interaction}: Develop safe and intuitive interfaces for human operators
+\item \textbf{Performance Optimization}: Implement real-time performance monitoring and optimization systems
+\end{itemize}
+
+\subsection{Long-term Vision}
+\begin{itemize}
+\item \textbf{Full Automation}: Achieve complete autonomous operation with minimal human intervention
+\item \textbf{Scalability}: Design systems for easy replication and deployment across multiple facilities
+\item \textbf{AI Integration}: Incorporate advanced AI decision-making capabilities for adaptive behavior
+\item \textbf{Industry 4.0}: Integrate with broader Industry 4.0 initiatives including IoT and cloud connectivity
+\end{itemize}
+
+\newpage
+
+\section{Conclusion}
+
+The post-midsem period has been highly productive, resulting in significant advancements across multiple domains of the autonomous robotics and computer vision project. The comprehensive dataset preparation, successful hardware integration, and sophisticated software development have laid a strong foundation for future industrial automation applications.
+
+Key achievements include the creation of a robust dataset with over 800 high-quality images, successful integration of dual camera systems with protective measures, development of CNN-based classification systems, and implementation of autonomous navigation capabilities. The collaborative approach with specialized teams (T2, T4) has proven effective in leveraging diverse expertise and accelerating development.
+
+The challenges encountered, particularly in lighting control and system optimization, have provided valuable learning experiences and driven innovative solutions. The ongoing work on robotic arm optimization and navigation enhancement demonstrates the iterative nature of complex system development.
+
+The exploration of new applications, such as indoor farming automation, showcases the versatility and potential impact of the developed technologies beyond traditional industrial settings. This forward-looking approach positions the project for continued relevance and impact.
+
+The technical skills developed, ranging from hardware integration to advanced software development, provide a strong foundation for future careers in robotics and automation. The experience of working with real-world constraints and industrial requirements has been particularly valuable in understanding the practical aspects of deploying automation solutions.
+
+Looking forward, the project is well-positioned for continued development and eventual deployment in industrial settings. The systematic approach to problem-solving, emphasis on collaboration, and focus on practical applications ensure that the work will contribute meaningfully to the advancement of autonomous robotics and computer vision in industrial automation.
+
+\newpage
+
+\section{References}
+
+\begin{thebibliography}{99}
+
+\bibitem{yolo}
+Redmon, J., Divvala, S., Girshick, R., \& Farhadi, A. (2016). You only look once: Unified, real-time object detection. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 779-788).
+
+\bibitem{slam}
+Thrun, S., Burgard, W., \& Fox, D. (2005). Probabilistic robotics. MIT Press.
+
+\bibitem{opencv}
+Bradski, G. (2000). The OpenCV Library. Dr. Dobb's Journal of Software Tools.
+
+\bibitem{tensorflow}
+Abadi, M., Agarwal, A., Barham, P., Brevdo, E., Chen, Z., Citro, C., ... \& Zheng, X. (2016). Tensorflow: Large-scale machine learning on heterogeneous distributed systems. arXiv preprint arXiv:1603.04467.
+
+\bibitem{robotics}
+Craig, J. J. (2017). Introduction to robotics: mechanics and control. Pearson.
+
+\bibitem{computer_vision}
+Szeliski, R. (2010). Computer vision: algorithms and applications. Springer Science \& Business Media.
+
+\bibitem{industrial_automation}
+Groover, M. P. (2014). Automation, production systems, and computer-integrated manufacturing. Pearson.
+
+\bibitem{raspberry_pi}
+Upton, E., \& Halfacree, G. (2016). Raspberry Pi user guide. John Wiley \& Sons.
+
+\end{thebibliography}
+
+\end{document}
